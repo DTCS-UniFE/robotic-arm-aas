@@ -65,4 +65,4 @@ A workflow is provided in [.github/workflows/docker-ghcr.yaml](.github/workflows
 
 The image will be available at `ghcr.io/repo-owner-name/robotic-arm-aas`, all in lowercase (GHCR does not allow uppercase characters).
 
-For this particular repository, the built Docker image can be found at [ghcr.io/dtcs-unife/robotic-arm-aas](ghcr.io/dtcs-unife/robotic-arm-aas).
+For this particular repository, the built Docker image can be found at [ghcr.io/dtcs-unife/robotic-arm-aas](https://ghcr.io/dtcs-unife/robotic-arm-aas).
