@@ -16,11 +16,28 @@ app = FastAPI(
 host = os.getenv("VALKEY_HOST", "localhost")
 port = int(os.getenv("VALKEY_PORT", "6379"))
 print(f"Trying Valkey connection at {host}:{port}")
-redis_client = Redis(host=host, port=port, decode_responses=True)
+
+max_attempts = 5
+
+for attempt in range(max_attempts):
+    try:
+        redis_client = Redis(host=host, port=port, decode_responses=True)
+        # Try a simple command to check connection
+        redis_client.ping()
+        break
+    except Exception as e:
+        print(f"Valkey connection attempt {attempt + 1}/{max_attempts} failed: {e}")
+        if attempt < max_attempts - 1:
+            time.sleep(3)
+        else:
+            raise RuntimeError(
+                f"Failed to connect to Valkey at {host}:{port} after {max_attempts} attempts"
+            )
+
 print("Connected successfully to Valkey")
 STATE_KEY = "robot_arm_state"
 
-# Dati statici
+# Static data
 static_data = {
     "asset_id": "RA-001",
     "type": "Robotic Arm",
@@ -73,6 +90,13 @@ def get_dynamic_state():
 def move_robot_arm(cmd: MoveCommand):
     if dynamic_state["status"] == "moving":
         raise HTTPException(status_code=400, detail="Already moving")
+
+    # If robot is already at that position, return
+    if dynamic_state["position"] == [cmd.x, cmd.y, cmd.z]:
+        return {
+            "message": "Already at this position",
+            "new_position": dynamic_state["position"],
+        }
 
     # Simulating robotic arm movement
     dynamic_state["status"] = "moving"
